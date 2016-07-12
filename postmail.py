@@ -50,7 +50,7 @@ class MailSender(object):
     def logout(self):
         self.server.close()
 
-    def send(self, subject, content, sender_name=None, receiver=None, cc=None, bcc=None, **kwargs):
+    def send(self, subject, content, sender_name=None, receiver=None, cc=None, bcc=None, subtype='plain', **kwargs):
         """
         simply send a email with subject and content.
 
@@ -60,7 +60,7 @@ class MailSender(object):
         :type receiver:    str or list
         :type cc:          str or list
         :type bcc:         str or list
-
+        :type subtype      enumerate 'plain' or 'html'
         :return:           None
         """
 
@@ -77,7 +77,8 @@ class MailSender(object):
         if self.auto_cc is True and self.default_receiver not in _receiver + _cc + _bcc:
             _cc.append(self.default_receiver)
 
-        mail_str = self.mail_str_builder(subject, content, _sender_name, _receiver, _cc, _bcc)
+        mail_str = self.mail_str_builder(subject=subject, content=content, sender=_sender_name, receiver=_receiver,
+                                         cc=_cc, bcc=_bcc, subtype=subtype)
 
         fail_times = 0
         while fail_times < self.retry:
@@ -100,8 +101,8 @@ class MailSender(object):
         else:
             return None
 
-    def mail_str_builder(self, subject, content, sender, receiver, cc, bcc):
-        mail = MIMEText(content, _subtype='plain', _charset='utf-8')
+    def mail_str_builder(self, subject, content, sender, receiver, cc, bcc, subtype='plain'):
+        mail = MIMEText(content, _subtype=subtype, _charset='utf-8')
 
         mail['Subject'] = subject
         mail['From'] = self.build_sender_str(sender)
