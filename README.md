@@ -35,8 +35,8 @@ response = requests.post('http://www.yourserver.com/mail', data={
 
 # Advance
 
-- Use a key to enchance security
-modify the string at the beginnin of **postmail.py**
+- Use a key to enhance security
+modify the string at the beginning of **postmail.py**
 ```python
 SECRET_KEY = "your_key"             # 用于验证身份的key, 留空表示不启用key验证机制
 ```
@@ -46,6 +46,18 @@ import requests
 
 response = requests.post('http://www.yourserver.com/mail', data={
     'key': "your_key",
+    'subject': "PostMail!",
+    'content': "This mail is sent by PostMail!"
+})
+```
+
+- HTML mail support
+you can use PostMail to send HTML mail by setting 'subtype' as 'html', which is default set to 'plain'
+```python
+import requests
+
+response = requests.post('http://www.yourserver.com/mail', data={
+    'subtype': "html",
     'subject': "PostMail!",
     'content': "This mail is sent by PostMail!"
 })
