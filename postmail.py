@@ -77,8 +77,8 @@ class MailSender(object):
         if self.auto_cc is True and self.default_receiver not in _receiver + _cc + _bcc:
             _cc.append(self.default_receiver)
 
-        mail_str = self.mail_str_builder(subject=subject, content=content, sender=_sender_name, receiver=_receiver,
-                                         cc=_cc, bcc=_bcc, subtype=subtype)
+        mail_str = self.build_mail_str(subject=subject, content=content, sender=_sender_name, receiver=_receiver,
+                                       cc=_cc, bcc=_bcc, subtype=subtype)
 
         fail_times = 0
         while fail_times < self.retry:
@@ -86,10 +86,13 @@ class MailSender(object):
                 self.server.sendmail(self.mail_address, _receiver, mail_str)
                 self.mails_sent_in_current_connection += 1
                 break
-            except smtplib.SMTPServerDisconnected or smtplib.SMTPSenderRefused:
+            except Exception:
                 fail_times += 1
                 self.logout()
                 self.login()
+
+        if fail_times >= self.retry:
+            raise IOError('Mail sending failed.')
 
         if self.mails_sent_in_current_connection >= self.mail_per_connection:
             self.logout()
@@ -101,7 +104,7 @@ class MailSender(object):
         else:
             return None
 
-    def mail_str_builder(self, subject, content, sender, receiver, cc, bcc, subtype='plain'):
+    def build_mail_str(self, subject, content, sender, receiver, cc, bcc, subtype='plain'):
         mail = MIMEText(content, _subtype=subtype, _charset='utf-8')
 
         mail['Subject'] = subject
